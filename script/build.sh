@@ -26,11 +26,6 @@ echo "Building ${EXTENSION_NAME} ${VERSION} for multiple platforms..."
 
 for platform in "${PLATFORMS[@]}"; do
     for arch in "${ARCHES[@]}"; do
-        # Skip arm64 for 32-bit architectures that don't exist
-        if [[ "$arch" == "386" ]] && [[ "$platform" == "darwin" ]]; then
-            continue
-        fi
-        
         # Determine file extension
         EXT=""
         if [[ "$platform" == "windows" ]]; then
@@ -46,7 +41,7 @@ for platform in "${PLATFORMS[@]}"; do
         # Copy the bash script to the dist directory
         cp "${SOURCE_SCRIPT}" "${OUTPUT_PATH}"
         
-        # Make sure it's executable
+        # Make sure it's executable (not needed for Windows, but doesn't hurt)
         chmod +x "${OUTPUT_PATH}"
     done
 done
