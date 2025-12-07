@@ -1,4 +1,50 @@
 #!/usr/bin/env bash
-echo "TODO implement this script."
-echo "It should build binaries in dist/<platform>-<arch>[.exe] as needed."
-exit 1
+set -e
+
+# This script packages the gh-repo-stats bash script for distribution
+# across different platforms for use with gh-extension-precompile
+
+# Get the version/tag if provided as first argument, otherwise use "dev"
+VERSION="${1:-dev}"
+
+# Name of the extension
+EXTENSION_NAME="gh-repo-stats"
+
+# Source script to distribute
+SOURCE_SCRIPT="gh-repo-stats"
+
+# Create dist directory
+mkdir -p dist
+
+# Define platforms and architectures
+# For bash scripts, the script itself is platform-independent,
+# but we need to create platform-specific packages for gh-extension-precompile
+PLATFORMS=("linux" "darwin" "windows")
+ARCHES=("amd64" "arm64")
+
+echo "Building ${EXTENSION_NAME} ${VERSION} for multiple platforms..."
+
+for platform in "${PLATFORMS[@]}"; do
+    for arch in "${ARCHES[@]}"; do
+        # Determine file extension
+        EXT=""
+        if [[ "$platform" == "windows" ]]; then
+            EXT=".exe"
+        fi
+        
+        # Create the output filename following gh-extension-precompile convention
+        OUTPUT_NAME="${platform}-${arch}${EXT}"
+        OUTPUT_PATH="dist/${OUTPUT_NAME}"
+        
+        echo "Creating ${OUTPUT_PATH}..."
+        
+        # Copy the bash script to the dist directory
+        cp "${SOURCE_SCRIPT}" "${OUTPUT_PATH}"
+        
+        # Make sure it's executable (not needed for Windows, but doesn't hurt)
+        chmod +x "${OUTPUT_PATH}"
+    done
+done
+
+echo "Build complete! Binaries created in dist/"
+ls -lh dist/
